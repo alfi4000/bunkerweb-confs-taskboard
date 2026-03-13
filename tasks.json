@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "project": "BunkerWeb Config Generator",
+  "tasks": [
+    {
+      "id": "bwcg-001",
+      "title": "Add wildcard certificate support to SSL step",
+      "description": "Allow users to configure Let's Encrypt wildcard certs via DNS-01 challenge. Show DNS provider dropdown when wildcard is toggled on.",
+      "priority": "high",
+      "column": "planned",
+      "tags": ["ssl", "feature"],
+      "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-002",
+      "title": "Mobile layout for config form",
+      "description": "The two-column field-row grid breaks on screens under 640px. Switch to single-column stacked layout for mobile.",
+      "priority": "medium",
+      "column": "next",
+      "tags": ["ui", "bug"],
+      "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-003",
+      "title": "Add Vaultwarden template",
+      "description": "Create a template for Vaultwarden (Bitwarden-compatible server) including WebSocket support and admin path rate limiting.",
+      "priority": "medium",
+      "column": "planned",
+      "tags": ["template"],
+      "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-004",
+      "title": "Validate SERVER_NAME field format",
+      "description": "Show a warning if the user types an IP address or includes http:// in the SERVER_NAME field.",
+      "priority": "low",
+      "column": "planned",
+      "tags": ["validation", "ux"],
+      "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-005",
+      "title": "Cache TTL user control",
+      "description": "Let users choose cache duration (15 min / 1 hour / 24 hours) instead of the fixed 1-hour TTL.",
+      "priority": "low",
+      "column": "planned",
+      "tags": ["feature"],
+      "created": "2026-03-13"
+    }
+  ]
+}
