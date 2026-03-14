@@ -254,7 +254,6 @@
       gap: 7px;
       min-height: 64px;
     }
-    .col-body.drag-over { background: rgba(34,197,94,0.04); border-radius: 6px; }
 
     /* ── TASK CARD ── */
     .task-card {
@@ -262,17 +261,14 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       padding: 10px 12px;
-      cursor: grab;
-      transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      transition: border-color 0.15s, box-shadow 0.15s;
       position: relative;
-      user-select: none;
     }
     .task-card:hover {
       border-color: var(--border-h);
       box-shadow: 0 2px 12px rgba(0,0,0,0.3);
       transform: translateY(-1px);
     }
-    .task-card.dragging { opacity: 0.35; cursor: grabbing; }
     .task-card.from-json { border-left: 2px solid var(--accent); }
 
     .task-card-top {
@@ -290,15 +286,14 @@
       flex: 1;
       word-break: break-word;
     }
-    .task-actions {
+    .task-actions-hidden {
       display: flex;
       gap: 1px;
       opacity: 0;
       transition: opacity 0.15s;
       flex-shrink: 0;
     }
-    .task-card:hover .task-actions { opacity: 1; }
-    .task-action-btn {
+    .task-action-btn-hidden {
       background: none;
       border: none;
       color: var(--text-muted);
@@ -309,8 +304,6 @@
       transition: color 0.15s, background 0.15s;
       line-height: 1;
     }
-    .task-action-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
-    .task-action-btn.del:hover { color: var(--red); }
 
     .task-desc {
       font-size: 11px;
@@ -736,11 +729,9 @@ const DEFAULT_SOURCE = 'https://raw.githubusercontent.com/palmcoasty/bunkerweb-c
 const POLL_MS      = 30_000;
 
 let tasks         = [];
-let seenJsonIds   = new Set();
 let sourceUrl     = localStorage.getItem(SOURCE_KEY) || DEFAULT_SOURCE;
 let currentFilter = 'all';
 let editingId     = null;
-let dragTaskId    = null;
 let syncTimer     = null;
 let lastSyncTime  = null;
 let syncError     = false;
@@ -750,11 +741,9 @@ let syncError     = false;
 ══════════════════════════════════════════ */
 function loadState() {
   try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { tasks = []; }
-  try { seenJsonIds = new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); } catch { seenJsonIds = new Set(); }
 }
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch {}
-  try { localStorage.setItem(SEEN_KEY, JSON.stringify([...seenJsonIds])); } catch {}
 }
 
 /* ══════════════════════════════════════════
@@ -768,56 +757,30 @@ async function syncFromJson() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    const jsonTasks = data.tasks || [];
-    const newOnes = [];
+    const validCols = new Set(COLUMNS.map(c => c.id));
 
-    jsonTasks.forEach(jt => {
-      if (!jt.id || !jt.title) return;
-
-      const existing = tasks.find(t => t.id === jt.id);
-      // Normalise tags → first tag string for display
-      const tag = Array.isArray(jt.tags) ? jt.tags[0] || '' : (jt.tags || '');
-
-      if (existing) {
-        // Update metadata but keep user's column assignment
-        existing.title    = jt.title;
-        existing.desc     = jt.description || '';
-        existing.priority = jt.priority || existing.priority;
-        existing.tag      = tag;
-        seenJsonIds.add(jt.id);
-      } else if (!seenJsonIds.has(jt.id)) {
-        // Brand new task from JSON
-        const colId = COLUMNS.find(c => c.id === jt.column) ? jt.column : 'planned';
-        tasks.push({
-          id:       jt.id,
-          title:    jt.title,
-          desc:     jt.description || '',
-          priority: jt.priority || 'medium',
-          col:      colId,
-          tag,
-          created:  jt.created ? new Date(jt.created).getTime() : Date.now(),
-          fromJson: true,
-        });
-        seenJsonIds.add(jt.id);
-        newOnes.push(jt.title);
-      }
-    });
+    // Fully rebuild task list from JSON — JSON is the single source of truth
+    tasks = (data.tasks || [])
+      .filter(jt => jt.id && jt.title)
+      .map(jt => ({
+        id:       jt.id,
+        title:    jt.title,
+        desc:     jt.description || '',
+        priority: jt.priority || 'medium',
+        col:      validCols.has(jt.column) ? jt.column : 'planned',
+        tag:      Array.isArray(jt.tags) ? jt.tags[0] || '' : (jt.tags || ''),
+        created:  jt.created ? new Date(jt.created).getTime() : Date.now(),
+        fromJson: true,
+      }));
 
     saveState();
     renderBoard();
     lastSyncTime = Date.now();
     syncError = false;
     setSyncStatus('ok');
-
-    if (newOnes.length === 1) {
-      showToast('success', '&#128196; New task imported', `"${newOnes[0]}" added from source`);
-    } else if (newOnes.length > 1) {
-      showToast('success', `&#128196; ${newOnes.length} new tasks imported`, 'Loaded from source URL');
-    }
   } catch (err) {
     syncError = true;
     setSyncStatus('error');
-    // Silently fail if no tasks.json yet — only warn on unexpected errors
     if (!err.message.includes('404') && !err.message.includes('Failed to fetch')) {
       showToast('error', '&#9888; Sync error', err.message);
     }
@@ -871,10 +834,7 @@ function renderBoard() {
         </div>
       </div>
       <div class="col-body"
-        id="colbody-${col.id}"
-        ondragover="onDragOver(event,'${col.id}')"
-        ondragleave="onDragLeave(event)"
-        ondrop="onDrop(event,'${col.id}')">
+        id="colbody-${col.id}">
         ${colTasks.length === 0
           ? '<div class="col-empty">Drop tasks here</div>'
           : colTasks.map(renderCard).join('')}
@@ -887,10 +847,7 @@ function renderCard(t) {
   const pLabels = { low:'Low', medium:'Medium', high:'High' };
   const date = new Date(t.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   return `<div class="task-card${t.fromJson ? ' from-json' : ''}"
-    id="task-${t.id}"
-    draggable="true"
-    ondragstart="onDragStart(event,'${t.id}')"
-    ondragend="onDragEnd()">
+    id="task-${t.id}">
     <div class="task-card-top">
       <div class="task-title">${escHtml(t.title)}</div>
     </div>
@@ -904,34 +861,6 @@ function renderCard(t) {
   </div>`;
 }
 
-/* ══════════════════════════════════════════
-   DRAG & DROP
-══════════════════════════════════════════ */
-function onDragStart(e, id) {
-  dragTaskId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  setTimeout(() => document.getElementById('task-' + id)?.classList.add('dragging'), 0);
-}
-function onDragEnd() {
-  document.querySelectorAll('.task-card').forEach(c => c.classList.remove('dragging'));
-  document.querySelectorAll('.col-body').forEach(b => b.classList.remove('drag-over'));
-  dragTaskId = null;
-}
-function onDragOver(e, colId) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  document.querySelectorAll('.col-body').forEach(b => b.classList.remove('drag-over'));
-  document.getElementById('colbody-' + colId)?.classList.add('drag-over');
-}
-function onDragLeave(e) {
-  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drag-over');
-}
-function onDrop(e, colId) {
-  e.preventDefault();
-  if (!dragTaskId) return;
-  const t = tasks.find(t => t.id === dragTaskId);
-  if (t) { t.col = colId; saveState(); renderBoard(); }
-}
 
 /* ══════════════════════════════════════════
    MODAL — ADD / EDIT
@@ -1102,10 +1031,6 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeModal(); closeFormatModal(); closeSourceModal(); }
   if (e.key === 'Enter' && document.getElementById('task-modal').classList.contains('open') && e.target.tagName !== 'TEXTAREA') {
     e.preventDefault(); saveTask();
-  }
-  if (e.key === 'n' && !document.getElementById('task-modal').classList.contains('open')
-      && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-    openAddModal();
   }
 });
 
