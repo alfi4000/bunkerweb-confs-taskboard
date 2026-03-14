@@ -15,7 +15,7 @@
       "id": "bwcg-002",
       "title": "Add Seafile template",
       "description": "Create a BunkerWeb template for Seafile. Requires WebSocket support for real-time sync notifications (Seahub), correct proxy settings for the file-server port, and handling of the Seahub web interface.",
-      "priority": "medium",
+      "priority": "high",
       "column": "next",
       "tags": ["template"],
       "created": "2026-03-13"
@@ -24,7 +24,7 @@
       "id": "bwcg-003",
       "title": "Add Vaultwarden template",
       "description": "Create a template for Vaultwarden (Bitwarden-compatible server) including WebSocket support for live sync and admin path rate limiting.",
-      "priority": "medium",
+      "priority": "high",
       "column": "planned",
       "tags": ["template"],
       "created": "2026-03-13"
@@ -33,7 +33,7 @@
       "id": "bwcg-004",
       "title": "Add Koner template",
       "description": "Create a BunkerWeb template for Koner. Covers reverse proxy setup, appropriate security headers, and rate limiting for the web interface.",
-      "priority": "low",
+      "priority": "medium",
       "column": "next",
       "tags": ["template"],
       "created": "2026-03-13"
@@ -42,7 +42,7 @@
       "id": "bwcg-005",
       "title": "Add Kuma template",
       "description": "Create a BunkerWeb template for Uptime Kuma, a self-hosted monitoring tool. Needs WebSocket proxying for real-time status updates and appropriate rate limiting on the status page.",
-      "priority": "low",
+      "priority": "medium",
       "column": "next",
       "tags": ["template"],
       "created": "2026-03-13"
@@ -51,7 +51,7 @@
       "id": "bwcg-006",
       "title": "Add Gitea template",
       "description": "Create a BunkerWeb template for Gitea, a lightweight self-hosted Git service. Includes SSH passthrough notes, webhook endpoint configuration, and appropriate max upload size for repository pushes.",
-      "priority": "low",
+      "priority": "high",
       "column": "planned",
       "tags": ["template"],
       "created": "2026-03-13"
