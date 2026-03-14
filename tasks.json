@@ -73,6 +73,15 @@
       "column": "planned",
       "tags": ["template"],
       "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-009",
+      "title": "Add Openfire Server template",
+      "description": "-",
+      "priority": "medium",
+      "column": "planned",
+      "tags": ["template"],
+      "created": "2026-03-13"
     }
   ]
 }
