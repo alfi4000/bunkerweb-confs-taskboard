@@ -48,7 +48,7 @@
       "created": "2026-03-13"
     },
     {
-      "id": "bwcg-005",
+      "id": "bwcg-006",
       "title": "Add Gitea template",
       "description": "",
       "priority": "low",
@@ -57,7 +57,7 @@
       "created": "2026-03-13"
     },
     {
-      "id": "bwcg-005",
+      "id": "bwcg-007",
       "title": "Add Virtualmin template",
       "description": "",
       "priority": "low",
@@ -66,7 +66,7 @@
       "created": "2026-03-13"
     },
     {
-      "id": "bwcg-005",
+      "id": "bwcg-008",
       "title": "Add Webmin template",
       "description": "",
       "priority": "low",
