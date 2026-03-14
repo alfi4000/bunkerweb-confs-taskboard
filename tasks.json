@@ -84,13 +84,22 @@
       "created": "2026-03-13"
     },
     {
-      "id": "bwcg-009",
+      "id": "bwcg-010",
       "title": "Add Owncloud template",
       "description": "-",
       "priority": "low",
       "column": "planned",
       "tags": ["template"],
       "created": "2026-03-14"
+    },
+    {
+      "id": "bwcg-011",
+      "title": "Add Tuwunel template",
+      "description": "-",
+      "priority": "high",
+      "column": "done",
+      "tags": ["template"],
+      "created": "2026-03-11"
     }
   ]
 }
