@@ -1,1 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BunkerWeb Taskboard</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/palmcoasty/bunkerweb-config-generator/refs/heads/main/Bunker.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:          #0a1628;
+      --bg-card:     #0e1f35;
+      --bg-input:    #0b1929;
+      --bg-col:      #0c1a2e;
+      --border:      #1a3050;
+      --border-h:    #2a5080;
+      --accent:      #22c55e;
+      --accent-dim:  #16a34a;
+      --accent-glow: rgba(34,197,94,0.15);
+      --red:         #ef4444;
+      --yellow:      #f59e0b;
+      --blue:        #3b82f6;
+      --purple:      #a855f7;
+      --text:        #e2e8f0;
+      --text-muted:  #64748b;
+      --text-dim:    #94a3b8;
+      --radius:      10px;
+      --radius-sm:   6px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(180deg, #071020 0%, var(--bg) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 24px 24px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .logo {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+    .logo-bunker-svg { display: block; width: 190px; height: auto; overflow: visible; }
+    .logo-web-bar {
+      background: var(--accent);
+      border-radius: 5px;
+      padding: 2px 13px 3px;
+      margin-top: -4px;
+      display: block;
+      text-align: center;
+    }
+    .logo-web {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 400;
+      font-size: 12px;
+      color: #fff;
+      letter-spacing: 4px;
+      text-transform: lowercase;
+    }
+    header h1 { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    header p  { color: var(--text-dim); font-size: 12px; }
+
+    /* ── TOOLBAR ── */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .toolbar-left  { display: flex; align-items: center; gap: 8px;  flex-wrap: wrap; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 7px 16px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .btn-primary:hover { background: #16c557; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .filter-wrap { display: flex; gap: 3px; }
+    .filter-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .search-wrap { position: relative; }
+    .search-wrap input {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 12px;
+      padding: 6px 10px 6px 26px;
+      outline: none;
+      width: 170px;
+      transition: border-color 0.15s;
+    }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute;
+      left: 8px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      font-size: 11px;
+    }
+
+    /* sync badge */
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 4px 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .sync-badge:hover { border-color: var(--border-h); }
+    .sync-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+    .sync-dot.error { background: var(--red); }
+    .sync-dot.syncing {
+      background: var(--yellow);
+      animation: pulse 1s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    /* ── BOARD ── */
+    .board {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      flex: 1;
+      overflow-x: auto;
+      align-items: flex-start;
+      padding-bottom: 24px;
+    }
+
+    /* ── COLUMN ── */
+    .col {
+      background: var(--bg-col);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 260px;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 240px);
+    }
+    .col-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 13px 9px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .col-header-left { display: flex; align-items: center; gap: 7px; }
+    .col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .col-title { font-weight: 700; font-size: 12px; color: var(--text); }
+    .col-count {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 1px 6px;
+      min-width: 18px;
+      text-align: center;
+    }
+    .col-add-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0 3px;
+      transition: color 0.15s;
+      border-radius: 4px;
+    }
+    .col-add-btn:hover { color: var(--accent); }
+
+    .col-body {
+      padding: 8px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      min-height: 64px;
+    }
+    .col-body.drag-over { background: rgba(34,197,94,0.04); border-radius: 6px; }
+
+    /* ── TASK CARD ── */
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      cursor: grab;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      position: relative;
+      user-select: none;
+    }
+    .task-card:hover {
+      border-color: var(--border-h);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+    .task-card.dragging { opacity: 0.35; cursor: grabbing; }
+    .task-card.from-json { border-left: 2px solid var(--accent); }
+
+    .task-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .task-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      flex: 1;
+      word-break: break-word;
+    }
+    .task-actions {
+      display: flex;
+      gap: 1px;
+      opacity: 0;
+      transition: opacity 0.15s;
+      flex-shrink: 0;
+    }
+    .task-card:hover .task-actions { opacity: 1; }
+    .task-action-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+    .task-action-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+    .task-action-btn.del:hover { color: var(--red); }
+
+    .task-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 7px;
+      word-break: break-word;
+    }
+    .task-footer {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .priority-badge {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .priority-low    { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.3);  color: var(--accent); }
+    .priority-medium { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: var(--yellow); }
+    .priority-high   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: var(--red); }
+
+    .task-tag {
+      font-size: 10px;
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: var(--blue);
+      border-radius: 4px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+    .json-badge {
+      font-size: 9px;
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(34,197,94,0.2);
+      color: var(--accent);
+      border-radius: 4px;
+      padding: 1px 5px;
+      margin-left: auto;
+    }
+    .task-date { font-size: 10px; color: var(--text-muted); margin-left: auto; }
+
+    .col-empty {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 16px 8px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      pointer-events: none;
+    }
+
+    /* ── MODAL ── */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border-h);
+      border-radius: var(--radius);
+      padding: 22px;
+      max-width: 460px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .modal-close:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    .modal-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-right: 32px; }
+
+    .form-group { margin-bottom: 12px; }
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .form-group textarea { resize: vertical; min-height: 68px; }
+    .form-group select option { background: var(--bg-card); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    /* ── JSON FORMAT HELP MODAL ── */
+    .json-modal .modal { max-width: 560px; }
+    .json-format-block {
+      background: var(--bg-code, #060e1a);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: #a8d8a8;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.55;
+      margin-top: 10px;
+    }
+    .format-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .format-note strong { color: var(--accent); }
+
+    /* ── TOAST ── */
+    .toast-wrap {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 2000;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-h);
+      border-radius: var(--radius-sm);
+      padding: 11px 16px;
+      font-size: 12px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      pointer-events: all;
+      animation: slideIn 0.25s ease;
+      max-width: 300px;
+    }
+    .toast.success { border-left: 3px solid var(--accent); }
+    .toast.info    { border-left: 3px solid var(--blue); }
+    .toast.error   { border-left: 3px solid var(--red); }
+    .toast-icon { font-size: 14px; flex-shrink: 0; }
+    .toast-dismiss {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 0;
+      margin-left: auto;
+      line-height: 1;
+    }
+    @keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+    .toast.hiding { animation: fadeOut 0.25s ease forwards; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 12px 24px;
+      text-align: center;
+    }
+    footer p { color: var(--text-muted); font-size: 11px; }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-h); }
+
+    /* ── SOURCE URL MODAL ── */
+    .source-url-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .source-url-note code { color: var(--accent); }
+    .source-url-note a { color: var(--blue); }
+    .source-preview {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px;
+      margin-top: 6px;
+      word-break: break-all;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg class="logo-bunker-svg" viewBox="0 0 280 80" xmlns="http://www.w3.org/2000/svg">
+      <defs><path id="bunker-arc" d="M 8,72 Q 140,22 272,72"/></defs>
+      <text fill="white" letter-spacing="4" font-family="'Lilita One', cursive" font-size="50">
+        <textPath href="#bunker-arc" startOffset="50%" text-anchor="middle">BUNKER</textPath>
+      </text>
+    </svg>
+    <span class="logo-web-bar"><span class="logo-web">web</span></span>
+  </div>
+  <h1>Taskboard</h1>
+  <p>Track work across your BunkerWeb project</p>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-left">
+    <button class="btn-primary" onclick="openAddModal()">&#43; Add Task</button>
+    <div class="filter-wrap">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('high',this)">&#128308; High</button>
+      <button class="filter-btn" onclick="setFilter('medium',this)">&#128992; Medium</button>
+      <button class="filter-btn" onclick="setFilter('low',this)">&#128994; Low</button>
+    </div>
+  </div>
+  <div class="toolbar-right">
+    <div class="search-wrap">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search tasks…" oninput="renderBoard()">
+    </div>
+    <button class="sync-badge" id="sync-badge" onclick="syncNow()" title="Click to sync now">
+      <span class="sync-dot" id="sync-dot"></span>
+      <span id="sync-label">Never synced</span>
+    </button>
+    <button class="btn-secondary" onclick="openSourceModal()">&#128279; Source URL</button>
+    <button class="btn-secondary" onclick="openFormatModal()">JSON Format</button>
+    <button class="btn-secondary" onclick="clearDone()">Clear Done</button>
+  </div>
+</div>
+
+<div class="board" id="board"></div>
+
+<footer>
+  <p>
+    BunkerWeb Taskboard — auto-syncs every 30s from <span id="footer-source" style="color:var(--text-dim)">…</span> &middot;
+    <a href="../index.html">Config Generator</a> &middot;
+    <a href="https://www.bunkerweb.io" target="_blank" rel="noopener">BunkerWeb</a>
+  </p>
+</footer>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal-backdrop" id="task-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="modal-title" id="modal-title">Add Task</div>
+    <div class="form-group">
+      <label class="form-label">Title <span style="color:var(--accent)">*</span></label>
+      <input type="text" id="f-title" placeholder="What needs to be done?" maxlength="120">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea id="f-desc" placeholder="Optional details…" rows="3"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select id="f-priority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Column</label>
+        <select id="f-col">
+          <option value="planned">Planned</option>
+          <option value="next">Next</option>
+          <option value="inprogress">In Progress</option>
+          <option value="blocked">Blocked</option>
+          <option value="done">Done</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tag</label>
+        <input type="text" id="f-tag" placeholder="e.g. bug, feature" maxlength="30">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Task ID</label>
+        <input type="text" id="f-id" placeholder="auto-generated" maxlength="40">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveTask()">&#10003; Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- JSON FORMAT MODAL -->
+<div class="modal-backdrop json-modal" id="format-modal" onclick="if(event.target===this)closeFormatModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeFormatModal()">&times;</button>
+    <div class="modal-title">tasks.json Format</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">
+      Place <code style="color:var(--accent)">tasks.json</code> in the same folder as <code style="color:var(--accent)">taskboard.html</code>.
+      The board polls it every <strong>30 seconds</strong> and automatically adds any new task IDs it hasn't seen before.
+    </p>
+    <div class="json-format-block">{
+  "version": 1,
+  "project": "My Project",
+  "tasks": [
+    {
+      "id": "task-001",           // unique — used for dedup
+      "title": "Task title",      // required
+      "description": "Details…", // optional
+      "priority": "high",         // high | medium | low
+      "column": "planned",        // planned | next | inprogress
+                                  // | blocked | done
+      "tags": ["bug", "ui"],      // array of tag strings
+      "created": "2026-03-13"     // ISO date string
+    }
+  ]
+}</div>
+    <div class="format-note">
+      <strong>Dedup logic:</strong> if a task ID already exists on the board (moved by you), the board keeps your column assignment and only updates the title/description/priority from the file.<br><br>
+      <strong>Tip:</strong> serve this folder with a local HTTP server (e.g. <code>python3 -m http.server</code>) or deploy to GitHub Pages for live auto-sync to work.
+    </div>
+  </div>
+</div>
+
+<!-- SOURCE URL MODAL -->
+<div class="modal-backdrop" id="source-modal" onclick="if(event.target===this)closeSourceModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSourceModal()">&times;</button>
+    <div class="modal-title">Task Source URL</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">
+      The taskboard fetches <code style="color:var(--accent)">tasks.json</code> from this URL every 30 seconds and auto-imports any new task IDs.
+    </p>
+    <div class="form-group">
+      <label class="form-label">Source URL</label>
+      <input type="text" id="source-url-input" placeholder="https://… or ./tasks.json">
+    </div>
+    <div class="source-url-note">
+      <strong style="color:var(--text-dim)">Default (GitHub raw):</strong><br>
+      <div class="source-preview">https://raw.githubusercontent.com/palmcoasty/bunkerweb-confs-taskboard/refs/heads/main/tasks.json</div>
+      <br>
+      To use a local file, set <code>./tasks.json</code> (requires an HTTP server, not <code>file://</code>).<br>
+      Point to any public raw JSON URL — e.g. your own GitHub repo's <code>tasks.json</code>.
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="resetSourceUrl()">Reset to Default</button>
+      <button class="btn-secondary" onclick="closeSourceModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveSourceUrl()">&#10003; Save &amp; Sync</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════
+   COLUMNS
+══════════════════════════════════════════ */
+const COLUMNS = [
+  { id: 'planned',    label: 'Planned',     color: '#64748b' },
+  { id: 'next',       label: 'Next',        color: '#3b82f6' },
+  { id: 'inprogress', label: 'In Progress', color: '#f59e0b' },
+  { id: 'blocked',    label: 'Blocked',     color: '#ef4444' },
+  { id: 'done',       label: 'Done',        color: '#22c55e' },
+];
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const STORAGE_KEY  = 'bwcg_taskboard_v2';
+const SEEN_KEY     = 'bwcg_taskboard_seen';
+const SOURCE_KEY   = 'bwcg_taskboard_source';
+const DEFAULT_SOURCE = 'https://raw.githubusercontent.com/palmcoasty/bunkerweb-confs-taskboard/refs/heads/main/tasks.json';
+const POLL_MS      = 30_000;
+
+let tasks         = [];
+let seenJsonIds   = new Set();
+let sourceUrl     = localStorage.getItem(SOURCE_KEY) || DEFAULT_SOURCE;
+let currentFilter = 'all';
+let editingId     = null;
+let dragTaskId    = null;
+let syncTimer     = null;
+let lastSyncTime  = null;
+let syncError     = false;
+
+/* ══════════════════════════════════════════
+   PERSISTENCE
+══════════════════════════════════════════ */
+function loadState() {
+  try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { tasks = []; }
+  try { seenJsonIds = new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); } catch { seenJsonIds = new Set(); }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch {}
+  try { localStorage.setItem(SEEN_KEY, JSON.stringify([...seenJsonIds])); } catch {}
+}
+
+/* ══════════════════════════════════════════
+   JSON SYNC
+══════════════════════════════════════════ */
+async function syncFromJson() {
+  setSyncStatus('syncing');
+  try {
+    const sep = sourceUrl.includes('?') ? '&' : '?';
+    const res = await fetch(sourceUrl + sep + 't=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    const jsonTasks = data.tasks || [];
+    const newOnes = [];
+
+    jsonTasks.forEach(jt => {
+      if (!jt.id || !jt.title) return;
+
+      const existing = tasks.find(t => t.id === jt.id);
+      // Normalise tags → first tag string for display
+      const tag = Array.isArray(jt.tags) ? jt.tags[0] || '' : (jt.tags || '');
+
+      if (existing) {
+        // Update metadata but keep user's column assignment
+        existing.title    = jt.title;
+        existing.desc     = jt.description || '';
+        existing.priority = jt.priority || existing.priority;
+        existing.tag      = tag;
+        seenJsonIds.add(jt.id);
+      } else if (!seenJsonIds.has(jt.id)) {
+        // Brand new task from JSON
+        const colId = COLUMNS.find(c => c.id === jt.column) ? jt.column : 'planned';
+        tasks.push({
+          id:       jt.id,
+          title:    jt.title,
+          desc:     jt.description || '',
+          priority: jt.priority || 'medium',
+          col:      colId,
+          tag,
+          created:  jt.created ? new Date(jt.created).getTime() : Date.now(),
+          fromJson: true,
+        });
+        seenJsonIds.add(jt.id);
+        newOnes.push(jt.title);
+      }
+    });
+
+    saveState();
+    renderBoard();
+    lastSyncTime = Date.now();
+    syncError = false;
+    setSyncStatus('ok');
+
+    if (newOnes.length === 1) {
+      showToast('success', '&#128196; New task imported', `"${newOnes[0]}" added from source`);
+    } else if (newOnes.length > 1) {
+      showToast('success', `&#128196; ${newOnes.length} new tasks imported`, 'Loaded from source URL');
+    }
+  } catch (err) {
+    syncError = true;
+    setSyncStatus('error');
+    // Silently fail if no tasks.json yet — only warn on unexpected errors
+    if (!err.message.includes('404') && !err.message.includes('Failed to fetch')) {
+      showToast('error', '&#9888; Sync error', err.message);
+    }
+  }
+}
+
+function setSyncStatus(state) {
+  const dot   = document.getElementById('sync-dot');
+  const label = document.getElementById('sync-label');
+  dot.className = 'sync-dot' + (state === 'error' ? ' error' : state === 'syncing' ? ' syncing' : '');
+  if (state === 'syncing') { label.textContent = 'Syncing…'; return; }
+  if (state === 'error')   { label.textContent = 'Sync failed'; return; }
+  if (lastSyncTime) {
+    const mins = Math.round((Date.now() - lastSyncTime) / 60000);
+    label.textContent = mins < 1 ? 'Synced just now' : `Synced ${mins}m ago`;
+  }
+}
+
+function syncNow() {
+  clearInterval(syncTimer);
+  syncFromJson();
+  syncTimer = setInterval(syncFromJson, POLL_MS);
+}
+
+/* ══════════════════════════════════════════
+   RENDER BOARD
+══════════════════════════════════════════ */
+function getFiltered() {
+  const q = (document.getElementById('search-input').value || '').trim().toLowerCase();
+  return tasks.filter(t => {
+    if (currentFilter !== 'all' && t.priority !== currentFilter) return false;
+    if (q && !t.title.toLowerCase().includes(q) && !(t.desc||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function renderBoard() {
+  const board    = document.getElementById('board');
+  const filtered = getFiltered();
+
+  board.innerHTML = COLUMNS.map(col => {
+    const colTasks = filtered.filter(t => t.col === col.id);
+    const totalCnt = tasks.filter(t => t.col === col.id).length;
+
+    return `<div class="col" id="col-${col.id}">
+      <div class="col-header">
+        <div class="col-header-left">
+          <span class="col-dot" style="background:${col.color}"></span>
+          <span class="col-title">${col.label}</span>
+          <span class="col-count">${totalCnt}</span>
+        </div>
+        <button class="col-add-btn" title="Add to ${col.label}" onclick="openAddModal('${col.id}')">+</button>
+      </div>
+      <div class="col-body"
+        id="colbody-${col.id}"
+        ondragover="onDragOver(event,'${col.id}')"
+        ondragleave="onDragLeave(event)"
+        ondrop="onDrop(event,'${col.id}')">
+        ${colTasks.length === 0
+          ? '<div class="col-empty">Drop tasks here</div>'
+          : colTasks.map(renderCard).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCard(t) {
+  const pLabels = { low:'Low', medium:'Medium', high:'High' };
+  const date = new Date(t.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  return `<div class="task-card${t.fromJson ? ' from-json' : ''}"
+    id="task-${t.id}"
+    draggable="true"
+    ondragstart="onDragStart(event,'${t.id}')"
+    ondragend="onDragEnd()">
+    <div class="task-card-top">
+      <div class="task-title">${escHtml(t.title)}</div>
+      <div class="task-actions">
+        <button class="task-action-btn" title="Edit" onclick="openEditModal('${t.id}')">&#9998;</button>
+        <button class="task-action-btn del" title="Delete" onclick="deleteTask('${t.id}')">&#10005;</button>
+      </div>
+    </div>
+    ${t.desc ? `<div class="task-desc">${escHtml(t.desc)}</div>` : ''}
+    <div class="task-footer">
+      <span class="priority-badge priority-${t.priority}">${pLabels[t.priority]||t.priority}</span>
+      ${t.tag ? `<span class="task-tag">${escHtml(t.tag)}</span>` : ''}
+      ${t.fromJson ? `<span class="json-badge">JSON</span>` : ''}
+      <span class="task-date">${date}</span>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════
+   DRAG & DROP
+══════════════════════════════════════════ */
+function onDragStart(e, id) {
+  dragTaskId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => document.getElementById('task-' + id)?.classList.add('dragging'), 0);
+}
+function onDragEnd() {
+  document.querySelectorAll('.task-card').forEach(c => c.classList.remove('dragging'));
+  document.querySelectorAll('.col-body').forEach(b => b.classList.remove('drag-over'));
+  dragTaskId = null;
+}
+function onDragOver(e, colId) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.querySelectorAll('.col-body').forEach(b => b.classList.remove('drag-over'));
+  document.getElementById('colbody-' + colId)?.classList.add('drag-over');
+}
+function onDragLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drag-over');
+}
+function onDrop(e, colId) {
+  e.preventDefault();
+  if (!dragTaskId) return;
+  const t = tasks.find(t => t.id === dragTaskId);
+  if (t) { t.col = colId; saveState(); renderBoard(); }
+}
+
+/* ══════════════════════════════════════════
+   MODAL — ADD / EDIT
+══════════════════════════════════════════ */
+function openAddModal(colId = 'planned') {
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'Add Task';
+  document.getElementById('f-title').value    = '';
+  document.getElementById('f-desc').value     = '';
+  document.getElementById('f-priority').value = 'medium';
+  document.getElementById('f-col').value      = colId;
+  document.getElementById('f-tag').value      = '';
+  document.getElementById('f-id').value       = '';
+  document.getElementById('task-modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 80);
+}
+
+function openEditModal(id) {
+  const t = tasks.find(t => t.id === id);
+  if (!t) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Edit Task';
+  document.getElementById('f-title').value    = t.title;
+  document.getElementById('f-desc').value     = t.desc  || '';
+  document.getElementById('f-priority').value = t.priority;
+  document.getElementById('f-col').value      = t.col;
+  document.getElementById('f-tag').value      = t.tag   || '';
+  document.getElementById('f-id').value       = t.id;
+  document.getElementById('task-modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 80);
+}
+
+function closeModal() {
+  document.getElementById('task-modal').classList.remove('open');
+  editingId = null;
+}
+
+function saveTask() {
+  const title = document.getElementById('f-title').value.trim();
+  if (!title) {
+    document.getElementById('f-title').style.borderColor = 'var(--red)';
+    document.getElementById('f-title').focus();
+    return;
+  }
+  document.getElementById('f-title').style.borderColor = '';
+
+  const data = {
+    title,
+    desc:     document.getElementById('f-desc').value.trim(),
+    priority: document.getElementById('f-priority').value,
+    col:      document.getElementById('f-col').value,
+    tag:      document.getElementById('f-tag').value.trim(),
+  };
+
+  if (editingId) {
+    const idx = tasks.findIndex(t => t.id === editingId);
+    if (idx !== -1) tasks[idx] = { ...tasks[idx], ...data };
+  } else {
+    const customId = document.getElementById('f-id').value.trim();
+    const id = customId || uid();
+    tasks.push({ id, created: Date.now(), fromJson: false, ...data });
+    seenJsonIds.add(id); // prevent re-import if id accidentally matches json
+  }
+
+  saveState();
+  closeModal();
+  renderBoard();
+}
+
+/* ══════════════════════════════════════════
+   ACTIONS
+══════════════════════════════════════════ */
+function deleteTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+  saveState();
+  renderBoard();
+}
+
+function clearDone() {
+  const count = tasks.filter(t => t.col === 'done').length;
+  if (!count) return;
+  if (!confirm(`Remove all ${count} completed task${count > 1 ? 's' : ''}?`)) return;
+  tasks = tasks.filter(t => t.col !== 'done');
+  saveState();
+  renderBoard();
+}
+
+function setFilter(priority, btn) {
+  currentFilter = priority;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBoard();
+}
+
+/* ══════════════════════════════════════════
+   JSON FORMAT MODAL
+══════════════════════════════════════════ */
+function openFormatModal()  { document.getElementById('format-modal').classList.add('open'); }
+function closeFormatModal() { document.getElementById('format-modal').classList.remove('open'); }
+
+function openSourceModal() {
+  document.getElementById('source-url-input').value = sourceUrl;
+  document.getElementById('source-modal').classList.add('open');
+  setTimeout(() => document.getElementById('source-url-input').focus(), 80);
+}
+function closeSourceModal() { document.getElementById('source-modal').classList.remove('open'); }
+function resetSourceUrl() { document.getElementById('source-url-input').value = DEFAULT_SOURCE; }
+function saveSourceUrl() {
+  const val = document.getElementById('source-url-input').value.trim();
+  if (!val) return;
+  sourceUrl = val;
+  localStorage.setItem(SOURCE_KEY, sourceUrl);
+  updateFooterSource();
+  closeSourceModal();
+  syncNow();
+  showToast('info', '&#128279; Source updated', 'Syncing from new URL…');
+}
+function updateFooterSource() {
+  const el = document.getElementById('footer-source');
+  if (!el) return;
+  try {
+    const u = new URL(sourceUrl);
+    el.textContent = u.hostname + (u.pathname.length > 30 ? '…' + u.pathname.slice(-20) : u.pathname);
+  } catch { el.textContent = sourceUrl; }
+}
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+function showToast(type, title, body) {
+  const wrap = document.getElementById('toast-wrap');
+  const id   = 'toast-' + uid();
+  const icons = { success: '&#10003;', info: 'ℹ', error: '&#9888;' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.id = id;
+  el.innerHTML = `
+    <span class="toast-icon">${icons[type] || ''}</span>
+    <div>
+      <div style="font-weight:600;margin-bottom:1px">${title}</div>
+      ${body ? `<div style="color:var(--text-muted);font-size:11px">${body}</div>` : ''}
+    </div>
+    <button class="toast-dismiss" onclick="dismissToast('${id}')">&times;</button>`;
+  wrap.appendChild(el);
+  setTimeout(() => dismissToast(id), 5000);
+}
+
+function dismissToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('hiding');
+  setTimeout(() => el.remove(), 260);
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function uid() { return Math.random().toString(36).slice(2,9) + Date.now().toString(36); }
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ══════════════════════════════════════════
+   KEYBOARD
+══════════════════════════════════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeFormatModal(); closeSourceModal(); }
+  if (e.key === 'Enter' && document.getElementById('task-modal').classList.contains('open') && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault(); saveTask();
+  }
+  if (e.key === 'n' && !document.getElementById('task-modal').classList.contains('open')
+      && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    openAddModal();
+  }
+});
+
+// Update sync label every minute
+setInterval(() => { if (lastSyncTime && !syncError) setSyncStatus('ok'); }, 60_000);
+
+/* ══════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════ */
+loadState();
+updateFooterSource();
+renderBoard();
+syncFromJson();
+syncTimer = setInterval(syncFromJson, POLL_MS);
+</script>
+</body>
+</html>
