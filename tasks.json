@@ -82,6 +82,15 @@
       "column": "planned",
       "tags": ["template"],
       "created": "2026-03-13"
+    },
+    {
+      "id": "bwcg-009",
+      "title": "Add Owncloud template",
+      "description": "-",
+      "priority": "low",
+      "column": "planned",
+      "tags": ["template"],
+      "created": "2026-03-13"
     }
   ]
 }
