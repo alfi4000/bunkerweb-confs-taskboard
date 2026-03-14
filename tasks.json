@@ -5,7 +5,7 @@
     {
       "id": "bwcg-001",
       "title": "Add Synapse template",
-      "description": "Allow users to configure Let's Encrypt wildcard certs via DNS-01 challenge. Show DNS provider dropdown when wildcard is toggled on.",
+      "description": "",
       "priority": "high",
       "column": "planned",
       "tags": ["ssl", "feature"],
@@ -14,7 +14,7 @@
     {
       "id": "bwcg-002",
       "title": "Add Seafile template",
-      "description": "The two-column field-row grid breaks on screens under 640px. Switch to single-column stacked layout for mobile.",
+      "description": "",
       "priority": "medium",
       "column": "next",
       "tags": ["ui", "bug"],
@@ -41,7 +41,7 @@
     {
       "id": "bwcg-005",
       "title": "Add Kuma template",
-      "description": "Let users choose cache duration (15 min / 1 hour / 24 hours) instead of the fixed 1-hour TTL.",
+      "description": "",
       "priority": "low",
       "column": "planned",
       "tags": ["template"],
@@ -50,7 +50,7 @@
     {
       "id": "bwcg-005",
       "title": "Add Gitea template",
-      "description": "Let users choose cache duration (15 min / 1 hour / 24 hours) instead of the fixed 1-hour TTL.",
+      "description": "",
       "priority": "low",
       "column": "planned",
       "tags": ["template"],
@@ -59,7 +59,7 @@
     {
       "id": "bwcg-005",
       "title": "Add Virtualmin template",
-      "description": "Let users choose cache duration (15 min / 1 hour / 24 hours) instead of the fixed 1-hour TTL.",
+      "description": "",
       "priority": "low",
       "column": "planned",
       "tags": ["template"],
@@ -68,7 +68,7 @@
     {
       "id": "bwcg-005",
       "title": "Add Webmin template",
-      "description": "Let users choose cache duration (15 min / 1 hour / 24 hours) instead of the fixed 1-hour TTL.",
+      "description": "",
       "priority": "low",
       "column": "planned",
       "tags": ["template"],
