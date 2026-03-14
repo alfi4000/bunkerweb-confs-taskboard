@@ -846,8 +846,6 @@ const COLUMNS = [
 /* ══════════════════════════════════════════
    STATE
 ══════════════════════════════════════════ */
-const STORAGE_KEY  = 'bwcg_taskboard_v2';
-const SEEN_KEY     = 'bwcg_taskboard_seen';
 const SOURCE_KEY   = 'bwcg_taskboard_source';
 const DEFAULT_SOURCE = 'https://raw.githubusercontent.com/palmcoasty/bunkerweb-confs-taskboard/refs/heads/main/tasks.json';
 const POLL_MS      = 30_000;
@@ -861,23 +859,13 @@ let lastSyncTime  = null;
 let syncError     = false;
 
 /* ══════════════════════════════════════════
-   PERSISTENCE
-══════════════════════════════════════════ */
-function loadState() {
-  try { tasks = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { tasks = []; }
-}
-function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch {}
-}
-
-/* ══════════════════════════════════════════
    JSON SYNC
 ══════════════════════════════════════════ */
 async function syncFromJson() {
   setSyncStatus('syncing');
   try {
     const sep = sourceUrl.includes('?') ? '&' : '?';
-    const res = await fetch(sourceUrl + sep + 't=' + Date.now());
+    const res = await fetch(sourceUrl + sep + 't=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -897,7 +885,6 @@ async function syncFromJson() {
         fromJson: true,
       }));
 
-    saveState();
     renderBoard();
     lastSyncTime = Date.now();
     syncError = false;
@@ -1062,7 +1049,7 @@ function saveTask() {
     seenJsonIds.add(id); // prevent re-import if id accidentally matches json
   }
 
-  saveState();
+
   closeModal();
   renderBoard();
 }
@@ -1072,7 +1059,7 @@ function saveTask() {
 ══════════════════════════════════════════ */
 function deleteTask(id) {
   tasks = tasks.filter(t => t.id !== id);
-  saveState();
+
   renderBoard();
 }
 
@@ -1081,7 +1068,7 @@ function clearDone() {
   if (!count) return;
   if (!confirm(`Remove all ${count} completed task${count > 1 ? 's' : ''}?`)) return;
   tasks = tasks.filter(t => t.col !== 'done');
-  saveState();
+
   renderBoard();
 }
 
@@ -1177,7 +1164,6 @@ setInterval(() => { if (lastSyncTime && !syncError) setSyncStatus('ok'); }, 60_0
 /* ══════════════════════════════════════════
    BOOT
 ══════════════════════════════════════════ */
-loadState();
 updateFooterSource();
 applyI18n();
 renderBoard();
