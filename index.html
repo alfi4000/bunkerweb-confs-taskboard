@@ -569,7 +569,6 @@
 
 <div class="toolbar">
   <div class="toolbar-left">
-    <button class="btn-primary" onclick="openAddModal()">&#43; Add Task</button>
     <div class="filter-wrap">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
       <button class="filter-btn" onclick="setFilter('high',this)">&#128308; High</button>
@@ -588,7 +587,6 @@
     </button>
     <button class="btn-secondary" onclick="openSourceModal()">&#128279; Source URL</button>
     <button class="btn-secondary" onclick="openFormatModal()">JSON Format</button>
-    <button class="btn-secondary" onclick="clearDone()">Clear Done</button>
   </div>
 </div>
 
@@ -871,7 +869,6 @@ function renderBoard() {
           <span class="col-title">${col.label}</span>
           <span class="col-count">${totalCnt}</span>
         </div>
-        <button class="col-add-btn" title="Add to ${col.label}" onclick="openAddModal('${col.id}')">+</button>
       </div>
       <div class="col-body"
         id="colbody-${col.id}"
@@ -896,10 +893,6 @@ function renderCard(t) {
     ondragend="onDragEnd()">
     <div class="task-card-top">
       <div class="task-title">${escHtml(t.title)}</div>
-      <div class="task-actions">
-        <button class="task-action-btn" title="Edit" onclick="openEditModal('${t.id}')">&#9998;</button>
-        <button class="task-action-btn del" title="Delete" onclick="deleteTask('${t.id}')">&#10005;</button>
-      </div>
     </div>
     ${t.desc ? `<div class="task-desc">${escHtml(t.desc)}</div>` : ''}
     <div class="task-footer">
