@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BunkerWeb Taskboard</title>
-  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/palmcoasty/bunkerweb-confs-taskboard/refs/heads/main/Bunker.png">
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/palmcoasty/bunkerweb-config-generator/refs/heads/main/Bunker.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400&display=swap" rel="stylesheet">
@@ -521,6 +521,32 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--border-h); }
 
+    /* ── LANGUAGE SWITCHER ── */
+    .lang-switcher {
+      display: flex;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .lang-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .lang-btn.active, .lang-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .lang-flag { font-size: 13px; }
+
     /* ── SOURCE URL MODAL ── */
     .source-url-note {
       font-size: 11px;
@@ -557,16 +583,21 @@
     <span class="logo-web-bar"><span class="logo-web">web</span></span>
   </div>
   <h1>Taskboard</h1>
-  <p>Track work across your BunkerWeb project</p>
+  <p data-i18n="headerSubtitle">Track work across your BunkerWeb project</p>
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')"><span class="lang-flag">🇬🇧</span> EN</button>
+    <button class="lang-btn" data-lang="de" onclick="setLang('de')"><span class="lang-flag">🇩🇪</span> DE</button>
+    <button class="lang-btn" data-lang="fr" onclick="setLang('fr')"><span class="lang-flag">🇫🇷</span> FR</button>
+  </div>
 </header>
 
 <div class="toolbar">
   <div class="toolbar-left">
     <div class="filter-wrap">
-      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
-      <button class="filter-btn" onclick="setFilter('high',this)">&#128308; High</button>
-      <button class="filter-btn" onclick="setFilter('medium',this)">&#128992; Medium</button>
-      <button class="filter-btn" onclick="setFilter('low',this)">&#128994; Low</button>
+      <button class="filter-btn active" data-i18n="filterAll" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-i18n="filterHigh" onclick="setFilter('high',this)">🔴 High</button>
+      <button class="filter-btn" data-i18n="filterMedium" onclick="setFilter('medium',this)">🟠 Medium</button>
+      <button class="filter-btn" data-i18n="filterLow" onclick="setFilter('low',this)">🟢 Low</button>
     </div>
   </div>
   <div class="toolbar-right">
@@ -709,6 +740,99 @@
 'use strict';
 
 /* ══════════════════════════════════════════
+   I18N
+══════════════════════════════════════════ */
+const TRANSLATIONS = {
+  en: {
+    headerSubtitle: 'Track work across your BunkerWeb project',
+    filterAll: 'All', filterHigh: '🔴 High', filterMedium: '🟠 Medium', filterLow: '🟢 Low',
+    searchPlaceholder: 'Search tasks…',
+    syncNever: 'Never synced', syncSyncing: 'Syncing…', syncFailed: 'Sync failed',
+    syncJustNow: 'Synced just now', syncAgo: 'Synced {n}m ago',
+    colEmpty: 'No tasks here',
+    colPlanned: 'Planned', colNext: 'Next', colInprogress: 'In Progress', colBlocked: 'Blocked', colDone: 'Done',
+    prioHigh: 'High', prioMedium: 'Medium', prioLow: 'Low',
+  },
+  de: {
+    headerSubtitle: 'Aufgaben im BunkerWeb-Projekt verwalten',
+    filterAll: 'Alle', filterHigh: '🔴 Hoch', filterMedium: '🟠 Mittel', filterLow: '🟢 Niedrig',
+    searchPlaceholder: 'Aufgaben suchen…',
+    syncNever: 'Nie synchronisiert', syncSyncing: 'Synchronisiere…', syncFailed: 'Synchronisierung fehlgeschlagen',
+    syncJustNow: 'Gerade synchronisiert', syncAgo: 'Vor {n} Min. synchronisiert',
+    colEmpty: 'Keine Aufgaben hier',
+    colPlanned: 'Geplant', colNext: 'Als Nächstes', colInprogress: 'In Arbeit', colBlocked: 'Blockiert', colDone: 'Erledigt',
+    prioHigh: 'Hoch', prioMedium: 'Mittel', prioLow: 'Niedrig',
+  },
+  fr: {
+    headerSubtitle: 'Suivez le travail de votre projet BunkerWeb',
+    filterAll: 'Tout', filterHigh: '🔴 Haute', filterMedium: '🟠 Moyenne', filterLow: '🟢 Basse',
+    searchPlaceholder: 'Rechercher des tâches…',
+    syncNever: 'Jamais synchronisé', syncSyncing: 'Synchronisation…', syncFailed: 'Échec de synchronisation',
+    syncJustNow: 'Synchronisé à l\'instant', syncAgo: 'Synchronisé il y a {n} min',
+    colEmpty: 'Aucune tâche ici',
+    colPlanned: 'Planifié', colNext: 'Suivant', colInprogress: 'En cours', colBlocked: 'Bloqué', colDone: 'Terminé',
+    prioHigh: 'Haute', prioMedium: 'Moyenne', prioLow: 'Basse',
+  },
+};
+
+let lang = localStorage.getItem('bwcg_lang') || 'en';
+
+function t(key) {
+  const s = (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) || TRANSLATIONS.en[key];
+  return s !== undefined ? s : key;
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  const si = document.getElementById('search-input');
+  if (si) si.placeholder = t('searchPlaceholder');
+}
+
+function setLang(newLang) {
+  lang = newLang;
+  localStorage.setItem('bwcg_lang', lang);
+  applyI18n();
+  renderBoard();
+  if (lang !== 'en') translateAllTasks(lang);
+}
+
+function colLabel(colId) {
+  const map = { planned:'colPlanned', next:'colNext', inprogress:'colInprogress', blocked:'colBlocked', done:'colDone' };
+  return t(map[colId] || colId);
+}
+
+/* ── TRANSLATION VIA GOOGLE ── */
+async function gtTranslate(text, targetLang) {
+  if (!text) return '';
+  try {
+    const url = 'https://translate.googleapis.com/translate_a/single'
+      + '?client=gtx&sl=en&tl=' + encodeURIComponent(targetLang)
+      + '&dt=t&q=' + encodeURIComponent(text);
+    const res  = await fetch(url);
+    if (!res.ok) return text;
+    const data = await res.json();
+    return data[0].map(x => x[0]).join('');
+  } catch { return text; }
+}
+
+async function translateTask(task, targetLang) {
+  if (!task._trans) task._trans = {};
+  if (task._trans[targetLang]) return;
+  const [title, desc] = await Promise.all([
+    gtTranslate(task.title, targetLang),
+    task.desc ? gtTranslate(task.desc, targetLang) : Promise.resolve(''),
+  ]);
+  task._trans[targetLang] = { title, desc };
+}
+
+async function translateAllTasks(targetLang) {
+  if (targetLang === 'en') return;
+  await Promise.all(tasks.map(t => translateTask(t, targetLang)));
+  renderBoard();
+}
+
+/* ══════════════════════════════════════════
    COLUMNS
 ══════════════════════════════════════════ */
 const COLUMNS = [
@@ -778,6 +902,7 @@ async function syncFromJson() {
     lastSyncTime = Date.now();
     syncError = false;
     setSyncStatus('ok');
+    if (lang !== 'en') translateAllTasks(lang);
   } catch (err) {
     syncError = true;
     setSyncStatus('error');
@@ -791,11 +916,13 @@ function setSyncStatus(state) {
   const dot   = document.getElementById('sync-dot');
   const label = document.getElementById('sync-label');
   dot.className = 'sync-dot' + (state === 'error' ? ' error' : state === 'syncing' ? ' syncing' : '');
-  if (state === 'syncing') { label.textContent = 'Syncing…'; return; }
-  if (state === 'error')   { label.textContent = 'Sync failed'; return; }
+  if (state === 'syncing') { label.textContent = t('syncSyncing'); return; }
+  if (state === 'error')   { label.textContent = t('syncFailed'); return; }
   if (lastSyncTime) {
     const mins = Math.round((Date.now() - lastSyncTime) / 60000);
-    label.textContent = mins < 1 ? 'Synced just now' : `Synced ${mins}m ago`;
+    label.textContent = mins < 1 ? t('syncJustNow') : t('syncAgo').replace('{n}', mins);
+  } else {
+    label.textContent = t('syncNever');
   }
 }
 
@@ -822,7 +949,7 @@ function renderBoard() {
   const filtered = getFiltered();
 
   board.innerHTML = COLUMNS.map(col => {
-    const PRIO = { medium: 0, high: 1, low: 2 };
+    const PRIO = { high: 0, medium: 1, low: 2 };
     const colTasks = filtered.filter(t => t.col === col.id)
       .sort((a, b) => (PRIO[a.priority] ?? 1) - (PRIO[b.priority] ?? 1));
     const totalCnt = tasks.filter(t => t.col === col.id).length;
@@ -831,38 +958,41 @@ function renderBoard() {
       <div class="col-header">
         <div class="col-header-left">
           <span class="col-dot" style="background:${col.color}"></span>
-          <span class="col-title">${col.label}</span>
+          <span class="col-title">${colLabel(col.id)}</span>
           <span class="col-count">${totalCnt}</span>
         </div>
       </div>
       <div class="col-body"
         id="colbody-${col.id}">
         ${colTasks.length === 0
-          ? '<div class="col-empty">Drop tasks here</div>'
+          ? `<div class="col-empty">${t('colEmpty')}</div>`
           : colTasks.map(renderCard).join('')}
       </div>
     </div>`;
   }).join('');
 }
 
-function renderCard(t) {
-  const pLabels = { low:'Low', medium:'Medium', high:'High' };
-  const _cd = t.created
-    ? (typeof t.created === 'string'
-        ? new Date(t.created.includes('T') ? t.created : t.created + 'T00:00:00')
-        : new Date(t.created))
+function renderCard(task) {
+  const pLabels = { low: t('prioLow'), medium: t('prioMedium'), high: t('prioHigh') };
+  const trans     = (lang !== 'en' && task._trans && task._trans[lang]) || null;
+  const cardTitle = trans ? trans.title : task.title;
+  const cardDesc  = trans ? trans.desc  : task.desc;
+  const _cd = task.created
+    ? (typeof task.created === 'string'
+        ? new Date(task.created.includes('T') ? task.created : task.created + 'T00:00:00')
+        : new Date(task.created))
     : new Date();
   const date = _cd.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-  return `<div class="task-card${t.fromJson ? ' from-json' : ''}"
-    id="task-${t.id}">
+  return `<div class="task-card${task.fromJson ? ' from-json' : ''}"
+    id="task-${task.id}">
     <div class="task-card-top">
-      <div class="task-title">${escHtml(t.title)}</div>
+      <div class="task-title">${escHtml(cardTitle)}</div>
     </div>
-    ${t.desc ? `<div class="task-desc">${escHtml(t.desc)}</div>` : ''}
+    ${cardDesc ? `<div class="task-desc">${escHtml(cardDesc)}</div>` : ''}
     <div class="task-footer">
-      <span class="priority-badge priority-${t.priority}">${pLabels[t.priority]||t.priority}</span>
-      ${t.tag ? `<span class="task-tag">${escHtml(t.tag)}</span>` : ''}
-      ${t.fromJson ? `<span class="json-badge">JSON</span>` : ''}
+      <span class="priority-badge priority-${task.priority}">${pLabels[task.priority] || task.priority}</span>
+      ${task.tag ? `<span class="task-tag">${escHtml(task.tag)}</span>` : ''}
+      ${task.fromJson ? `<span class="json-badge">JSON</span>` : ''}
       <span class="task-date">${date}</span>
     </div>
   </div>`;
@@ -1049,6 +1179,7 @@ setInterval(() => { if (lastSyncTime && !syncError) setSyncStatus('ok'); }, 60_0
 ══════════════════════════════════════════ */
 loadState();
 updateFooterSource();
+applyI18n();
 renderBoard();
 syncFromJson();
 syncTimer = setInterval(syncFromJson, POLL_MS);
