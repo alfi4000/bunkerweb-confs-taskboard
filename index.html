@@ -847,7 +847,11 @@ function renderBoard() {
 
 function renderCard(t) {
   const pLabels = { low:'Low', medium:'Medium', high:'High' };
-  const _cd = t.created ? new Date(t.created.includes('T') ? t.created : t.created + 'T00:00:00') : new Date();
+  const _cd = t.created
+    ? (typeof t.created === 'string'
+        ? new Date(t.created.includes('T') ? t.created : t.created + 'T00:00:00')
+        : new Date(t.created))
+    : new Date();
   const date = _cd.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   return `<div class="task-card${t.fromJson ? ' from-json' : ''}"
     id="task-${t.id}">
