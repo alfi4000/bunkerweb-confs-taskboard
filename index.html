@@ -769,7 +769,7 @@ async function syncFromJson() {
         priority: jt.priority || 'medium',
         col:      validCols.has(jt.column) ? jt.column : 'planned',
         tag:      Array.isArray(jt.tags) ? jt.tags[0] || '' : (jt.tags || ''),
-        created:  jt.created ? new Date(jt.created).getTime() : Date.now(),
+        created:  jt.created || null,
         fromJson: true,
       }));
 
@@ -822,7 +822,9 @@ function renderBoard() {
   const filtered = getFiltered();
 
   board.innerHTML = COLUMNS.map(col => {
-    const colTasks = filtered.filter(t => t.col === col.id);
+    const PRIO = { medium: 0, high: 1, low: 2 };
+    const colTasks = filtered.filter(t => t.col === col.id)
+      .sort((a, b) => (PRIO[a.priority] ?? 1) - (PRIO[b.priority] ?? 1));
     const totalCnt = tasks.filter(t => t.col === col.id).length;
 
     return `<div class="col" id="col-${col.id}">
@@ -845,7 +847,8 @@ function renderBoard() {
 
 function renderCard(t) {
   const pLabels = { low:'Low', medium:'Medium', high:'High' };
-  const date = new Date(t.created).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  const _cd = t.created ? new Date(t.created.includes('T') ? t.created : t.created + 'T00:00:00') : new Date();
+  const date = _cd.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   return `<div class="task-card${t.fromJson ? ' from-json' : ''}"
     id="task-${t.id}">
     <div class="task-card-top">
